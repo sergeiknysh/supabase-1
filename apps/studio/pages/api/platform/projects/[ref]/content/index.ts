@@ -30,11 +30,15 @@ type GetResponseData =
 const handleGetAll = async (req: NextApiRequest, res: NextApiResponse<GetResponseData>) => {
   // Platform specific endpoint
   const params = req.query as GetRequestData
-  if (params?.favorite || params?.visibility === 'project') {
+  if (params?.visibility === 'project') {
     return res.status(200).json({ data: [] })
   }
+  let queryString = `SELECT * FROM public.snippets`
+  if (params?.favorite) {
+    queryString += ` WHERE (content -> 'content' ->> 'favorite')::boolean is ${params.favorite};`
+  }
 
-  const data = await query(`SELECT * FROM public.snippets`, req.headers)
+  const data = await query(queryString, req.headers)
   console.log(data)
   const snippets = data.map((d) => d.content)
 

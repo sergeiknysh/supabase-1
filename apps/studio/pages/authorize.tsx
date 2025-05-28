@@ -197,7 +197,7 @@ const APIAuthorizationPage: NextPageWithLayout = () => {
           </p>
           <Button
             className="mt-8 mb-9"
-            onClick={() => claimProject({ slug: selectedOrgSlug!, token: '' })}
+            onClick={() => claimProject({ slug: selectedOrgSlug!, token: claimToken! })}
           >
             Continue connection
           </Button>

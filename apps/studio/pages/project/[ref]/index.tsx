@@ -21,7 +21,6 @@ import { useTablesQuery } from 'data/tables/tables-query'
 import { useSelectedOrganization } from 'hooks/misc/useSelectedOrganization'
 import { useIsOrioleDb, useSelectedProject } from 'hooks/misc/useSelectedProject'
 import { IS_PLATFORM, PROJECT_STATUS } from 'lib/constants'
-import { copyToClipboard } from 'lib/helpers'
 import { toast } from 'sonner'
 import { useAppStateSnapshot } from 'state/app-state'
 import type { NextPageWithLayout } from 'types'
@@ -84,29 +83,31 @@ const Home: NextPageWithLayout = () => {
   const buildOAuthUrl = async () => {
     try {
       const data = await createClaimToken({ projectRef: project?.ref! })
-      const app = apps?.[0]
-      if (!app) {
-        toast.error('No OAuth app found')
-        return
-      }
-      if (!app.redirect_uris) {
-        toast.error('No redirect URI found')
-        return
-      }
+      console.log(data)
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_ADMIN_URL}/oauth/authorize?client_id=${app.app_id!}&response_type=code&redirect_uri=${app.redirect_uris[0]}`,
-        {
-          method: 'GET',
-          redirect: 'manual',
-        }
-      )
-      // get the redirect url from the OAuth app authorization
-      const redirectUrl = response.headers.get('Location')
+      // const app = apps?.[0]
+      // if (!app) {
+      //   toast.error('No OAuth app found')
+      //   return
+      // }
+      // if (!app.redirect_uris) {
+      //   toast.error('No redirect URI found')
+      //   return
+      // }
+
+      // const response = await fetch(
+      //   `${process.env.NEXT_PUBLIC_API_ADMIN_URL}/oauth/authorize?client_id=${app.app_id!}&response_type=code&redirect_uri=${app.redirect_uris[0]}`,
+      //   {
+      //     method: 'GET',
+      //     redirect: 'manual',
+      //   }
+      // )
+      // // get the redirect url from the OAuth app authorization
+      // const redirectUrl = response.headers.get('Location')
 
       // append the token to the authorization url
-      await copyToClipboard(`${redirectUrl}&token=${data.token}`)
-      toast.success('URL copied to clipboard')
+      // await copyToClipboard(`${redirectUrl}&token=${data.token}`)
+      toast.success('URL pasted in console')
     } catch (error: any) {
       toast.error('Failed to create claim token', error!.message)
     }

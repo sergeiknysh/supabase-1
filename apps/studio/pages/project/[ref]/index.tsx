@@ -85,15 +85,18 @@ const Home: NextPageWithLayout = () => {
       const data = await createClaimToken({ projectRef: project?.ref! })
       console.log(data)
 
-      // const app = apps?.[0]
-      // if (!app) {
-      //   toast.error('No OAuth app found')
-      //   return
-      // }
-      // if (!app.redirect_uris) {
-      //   toast.error('No redirect URI found')
-      //   return
-      // }
+      const app = apps?.[0]
+      if (!app) {
+        toast.error('No OAuth app found')
+        return
+      }
+      if (!app.redirect_uris) {
+        toast.error('No redirect URI found')
+        return
+      }
+
+      const url = `${process.env.NEXT_PUBLIC_API_ADMIN_URL}/oauth/authorize?client_id=${app.client_id!}&response_type=code&redirect_uri=${app.redirect_uris[0]}`
+      console.log(url)
 
       // const response = await fetch(
       //   `${process.env.NEXT_PUBLIC_API_ADMIN_URL}/oauth/authorize?client_id=${app.app_id!}&response_type=code&redirect_uri=${app.redirect_uris[0]}`,

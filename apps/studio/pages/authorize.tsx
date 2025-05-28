@@ -1,6 +1,8 @@
 import { useParams } from 'common'
 import dayjs from 'dayjs'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, CheckCircle2, ChevronsLeftRight } from 'lucide-react'
+import { useTheme } from 'next-themes'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
@@ -13,8 +15,11 @@ import ShimmeringLoader from 'components/ui/ShimmeringLoader'
 import { useApiAuthorizationApproveMutation } from 'data/api-authorization/api-authorization-approve-mutation'
 import { useApiAuthorizationDeclineMutation } from 'data/api-authorization/api-authorization-decline-mutation'
 import { useApiAuthorizationQuery } from 'data/api-authorization/api-authorization-query'
+import { useOrganizationProjectClaimMutation } from 'data/organizations/organization-project-claim-mutation'
+import { useOrganizationProjectClaimQuery } from 'data/organizations/organization-project-claim-query'
 import { useOrganizationsQuery } from 'data/organizations/organizations-query'
 import { withAuth } from 'hooks/misc/withAuth'
+import { BASE_PATH } from 'lib/constants'
 import type { NextPageWithLayout } from 'types'
 import {
   Alert,
@@ -22,6 +27,7 @@ import {
   AlertDescription_Shadcn_,
   AlertTitle_Shadcn_,
   Button,
+  cn,
   Listbox,
 } from 'ui'
 
@@ -30,10 +36,13 @@ import {
 
 const APIAuthorizationPage: NextPageWithLayout = () => {
   const router = useRouter()
-  const { auth_id } = useParams()
+  const { auth_id, token: claim_token } = useParams()
   const [isApproving, setIsApproving] = useState(false)
   const [isDeclining, setIsDeclining] = useState(false)
   const [selectedOrgSlug, setSelectedOrgSlug] = useState<string>()
+  const [step, setStep] = useState<'authorize' | 'connected'>('authorize')
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null)
+  const { resolvedTheme } = useTheme()
 
   const {
     data: organizations,
@@ -46,13 +55,33 @@ const APIAuthorizationPage: NextPageWithLayout = () => {
 
   const { mutate: approveRequest } = useApiAuthorizationApproveMutation({
     onSuccess: (res) => {
-      window.location.href = res.url
+      setRedirectUrl(res.url)
+      setStep('connected')
     },
   })
   const { mutate: declineRequest } = useApiAuthorizationDeclineMutation({
     onSuccess: () => {
       toast.success('Declined API authorization request')
       router.push('/organizations')
+    },
+  })
+
+  const { data: projectClaim, isSuccess: isSuccessProjectClaim } = useOrganizationProjectClaimQuery(
+    {
+      slug: selectedOrgSlug!,
+      token: claim_token!,
+    },
+    {
+      enabled: true,
+      onSuccess: () => {
+        console.log('success')
+      },
+    }
+  )
+
+  const { mutate: claimProject } = useOrganizationProjectClaimMutation({
+    onSuccess: () => {
+      window.location.href = redirectUrl!
     },
   })
 
@@ -106,6 +135,99 @@ const APIAuthorizationPage: NextPageWithLayout = () => {
           <Alert withIcon variant="warning" title="Missing authorization ID">
             Please provide a valid authorization ID in the URL
           </Alert>
+        </div>
+      </FormPanel>
+    )
+  }
+
+  console.log('projectClaim', isSuccessProjectClaim)
+  if (step === 'connected' && isSuccessProjectClaim && requester) {
+    return (
+      <FormPanel>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-sm">
+          <div className="flex items-center mb-6">
+            <div className="flex items-center">
+              <div
+                className={cn(
+                  'w-8 h-8 bg-center bg-no-repeat bg-cover flex items-center justify-center rounded-md'
+                )}
+                style={{
+                  backgroundImage: !!requester.icon ? `url('${requester.icon}')` : 'none',
+                }}
+              >
+                {!requester.icon && (
+                  <p className="text-foreground-light text-lg">{requester.name[0]}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center w-28 relative">
+              <div className="h-0.5 w-full border-2 border-dashed border-stronger" />
+              <div className="rounded-full border flex items-center justify-center h-10 w-full shadow-sm">
+                <ChevronsLeftRight className="text-muted-foreground" size={24} />
+              </div>
+              <div className="h-0.5  w-full border-2 border-dashed border-stronger z-10" />
+            </div>
+
+            <div className="w-8 h-8">
+              <Image
+                src={
+                  resolvedTheme?.includes('dark')
+                    ? `${BASE_PATH}/img/supabase-logo.svg`
+                    : `${BASE_PATH}/img/supabase-logo.svg`
+                }
+                alt="Supabase Logo"
+                className="w-full h-full"
+                width={100}
+                height={100}
+              />
+            </div>
+          </div>
+          <h2 className="text-center text-base text-foreground-light">
+            Supabase will become the backend for{' '}
+            <span className="text-foreground">{projectClaim?.project?.name}</span>.
+          </h2>
+          <p className="text-center text-foreground-lighter">
+            Your backend will then be managed by Supabase.
+          </p>
+          <Button
+            className="mt-8 mb-9"
+            onClick={() => claimProject({ slug: selectedOrgSlug!, token: '' })}
+          >
+            Continue connection
+          </Button>
+          <div className="w-full max-w-md space-y-4">
+            <h3 className="">Why connect Lovable to Supabase?</h3>
+            <ul className="space-y-3">
+              <li className="flex space-x-2">
+                <CheckCircle2 className="text-brand w-5 h-5" />
+                <span>
+                  <span className="text-foreground-light">Technical Support</span>
+                  <span className="block text-foreground-lighter">
+                    We're ready to answer your questions.
+                  </span>
+                </span>
+              </li>
+              <li className="flex space-x-2">
+                <CheckCircle2 className="text-brand w-5 h-5" />
+                <span>
+                  <span className="text-foreground-light">Unrestricted usage.</span>
+                  <span className="block text-foreground-lighter">
+                    Scale your project as your users grow.
+                  </span>
+                </span>
+              </li>
+              <li className="flex space-x-2">
+                <CheckCircle2 className="text-brand w-5 h-5" />
+                <span>
+                  <span className="text-foreground-light">Compute upgrades</span>
+                  <span className="block text-foreground-lighter">
+                    Handle larger database loads
+                  </span>
+                </span>
+              </li>
+            </ul>
+          </div>
         </div>
       </FormPanel>
     )

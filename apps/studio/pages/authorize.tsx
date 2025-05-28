@@ -77,10 +77,7 @@ const APIAuthorizationPage: NextPageWithLayout = () => {
       token: claimToken!,
     },
     {
-      enabled: true,
-      onSuccess: () => {
-        console.log('success')
-      },
+      enabled: !!claimToken,
     }
   )
 
@@ -145,7 +142,6 @@ const APIAuthorizationPage: NextPageWithLayout = () => {
     )
   }
 
-  console.log('projectClaim', isSuccessProjectClaim)
   if (step === 'connected' && isSuccessProjectClaim && requester) {
     return (
       <FormPanel>

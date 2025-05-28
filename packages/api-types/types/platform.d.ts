@@ -6222,6 +6222,7 @@ export interface components {
           | 'MONTHLY_ACTIVE_USERS'
           | 'MONTHLY_ACTIVE_SSO_USERS'
           | 'FUNCTION_INVOCATIONS'
+          | 'FUNCTION_CPU_MILLISECONDS'
           | 'STORAGE_IMAGES_TRANSFORMED'
           | 'REALTIME_MESSAGE_COUNT'
           | 'REALTIME_PEAK_CONNECTIONS'
@@ -7555,6 +7556,7 @@ export interface components {
           | 'MONTHLY_ACTIVE_USERS'
           | 'MONTHLY_ACTIVE_SSO_USERS'
           | 'FUNCTION_INVOCATIONS'
+          | 'FUNCTION_CPU_MILLISECONDS'
           | 'STORAGE_IMAGES_TRANSFORMED'
           | 'REALTIME_MESSAGE_COUNT'
           | 'REALTIME_PEAK_CONNECTIONS'
@@ -10768,6 +10770,7 @@ export interface operations {
           | 'MONTHLY_ACTIVE_USERS'
           | 'MONTHLY_ACTIVE_SSO_USERS'
           | 'FUNCTION_INVOCATIONS'
+          | 'FUNCTION_CPU_MILLISECONDS'
           | 'STORAGE_IMAGES_TRANSFORMED'
           | 'REALTIME_MESSAGE_COUNT'
           | 'REALTIME_PEAK_CONNECTIONS'
@@ -16192,6 +16195,8 @@ export interface operations {
           | 'total_storage_post_requests'
           | 'total_storage_delete_requests'
           | 'total_logdrain_egress'
+          | 'total_func_invocations'
+          | 'total_func_cpu_time_ms'
         endDate: string
         interval?: string
         startDate: string

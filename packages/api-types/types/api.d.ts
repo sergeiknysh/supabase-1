@@ -198,7 +198,7 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/v1/organizations/{slug}/project-claim': {
+  '/v1/organizations/{slug}/project-claim/{token}': {
     parameters: {
       query?: never
       header?: never

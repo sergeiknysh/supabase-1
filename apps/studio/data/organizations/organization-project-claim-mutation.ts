@@ -10,7 +10,7 @@ type OrganizationProjectClaimVariables = {
 }
 
 async function claimOrganizationProject({ slug, token }: OrganizationProjectClaimVariables) {
-  const { data, error } = await post('/v1/organizations/{slug}/project-claim', {
+  const { data, error } = await post('/v1/organizations/{slug}/project-claim/{token}', {
     params: { path: { slug, token } },
   })
   if (error) handleError(error)

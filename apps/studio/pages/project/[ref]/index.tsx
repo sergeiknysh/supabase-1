@@ -39,27 +39,6 @@ import {
 } from 'ui'
 import ShimmeringLoader from 'ui-patterns/ShimmeringLoader'
 
-const extractRedirectUri = (appId: string, redirectUri: string) => {
-  return fetch(
-    `http://localhost:8080/v1/oauth/authorize?client_id=${appId}&response_type=code&redirect_uri=${redirectUri}`,
-    {
-      method: 'GET',
-      redirect: 'manual', // equivalent to --max-redirs 0
-    }
-  )
-    .then((response) => {
-      console.log('Status:', response.status)
-      console.log('Headers:', [...response.headers.entries()])
-      return response.text()
-    })
-    .then((body) => {
-      console.log('Body:', body)
-    })
-    .catch((error) => {
-      console.error('Fetch error:', error)
-    })
-}
-
 const Home: NextPageWithLayout = () => {
   const organization = useSelectedOrganization()
   const project = useSelectedProject()
@@ -114,9 +93,19 @@ const Home: NextPageWithLayout = () => {
         toast.error('No redirect URI found')
         return
       }
-      const url = extractRedirectUri(app?.app_id!, app?.redirect_uris[0]!)
 
-      await copyToClipboard(url.toString())
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_ADMIN_URL}/oauth/authorize?client_id=${app.app_id!}&response_type=code&redirect_uri=${app.redirect_uris[0]}`,
+        {
+          method: 'GET',
+          redirect: 'manual',
+        }
+      )
+      // get the redirect url from the OAuth app authorization
+      const redirectUrl = response.headers.get('Location')
+
+      // append the token to the authorization url
+      await copyToClipboard(`${redirectUrl}&token=${data.token}`)
       toast.success('URL copied to clipboard')
     } catch (error: any) {
       toast.error('Failed to create claim token', error!.message)

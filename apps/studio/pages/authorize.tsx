@@ -36,7 +36,7 @@ import {
 
 const APIAuthorizationPage: NextPageWithLayout = () => {
   const router = useRouter()
-  const { auth_id, token: claim_token } = useParams()
+  const { auth_id, token: claimToken } = useParams()
   const [isApproving, setIsApproving] = useState(false)
   const [isDeclining, setIsDeclining] = useState(false)
   const [selectedOrgSlug, setSelectedOrgSlug] = useState<string>()
@@ -55,8 +55,13 @@ const APIAuthorizationPage: NextPageWithLayout = () => {
 
   const { mutate: approveRequest } = useApiAuthorizationApproveMutation({
     onSuccess: (res) => {
-      setRedirectUrl(res.url)
-      setStep('connected')
+      if (claimToken) {
+        setRedirectUrl(res.url)
+        setStep('connected')
+        return
+      } else {
+        window.location.href = res.url!
+      }
     },
   })
   const { mutate: declineRequest } = useApiAuthorizationDeclineMutation({
@@ -69,7 +74,7 @@ const APIAuthorizationPage: NextPageWithLayout = () => {
   const { data: projectClaim, isSuccess: isSuccessProjectClaim } = useOrganizationProjectClaimQuery(
     {
       slug: selectedOrgSlug!,
-      token: claim_token!,
+      token: claimToken!,
     },
     {
       enabled: true,

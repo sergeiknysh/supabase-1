@@ -9,11 +9,13 @@ export interface AuthorizeRequesterDetailsProps {
   scopes: OAuthScope[]
 }
 
-const ScopeSection = ({
+export const ScopeSection = ({
+  className,
   description,
   hasReadScope,
   hasWriteScope,
 }: {
+  className?: string
   description: string
   hasReadScope: boolean
   hasWriteScope: boolean
@@ -36,7 +38,12 @@ const ScopeSection = ({
       ))
 
     return (
-      <div className="first:border-t border-b flex flex-row space-x-1 text-sm text-foreground-light py-2 px-1">
+      <div
+        className={cn(
+          'first:border-t border-b flex flex-row space-x-1 text-sm text-foreground-light py-2 px-1',
+          className
+        )}
+      >
         <div className="pt-0.5">
           <Check stroke="green" height={18} width={18} strokeWidth={1.5} />
         </div>

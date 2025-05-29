@@ -16,33 +16,9 @@ export async function getOrganizationProjectClaim(
   { slug, token }: OrganizationProjectClaimVariables,
   signal?: AbortSignal
 ) {
-  await new Promise((resolve) => setTimeout(resolve, 3000))
-  console.log('ello')
-
-  const result: OrganizationProjectClaimResponse = {
-    created_at: '2025-05-27T12:00:00Z',
-    created_by: 'test',
-    expires_at: '2025-05-27T12:00:00Z',
-    preview: {
-      errors: [],
-      info: [],
-      members_exceeding_free_project_limit: [],
-      source_subscription_plan: 'free',
-      target_organization_eligible: true,
-      target_organization_has_free_project_slots: true,
-      target_subscription_plan: 'free',
-      valid: true,
-      warnings: [],
-    },
-    project: {
-      name: 'ProjectName',
-      ref: 'some-ref',
-    },
-  }
-  return result
   if (!slug || !token) throw new Error('Slug and token are required')
 
-  const { data, error } = await get(`/v1/organizations/{slug}/project-claim`, {
+  const { data, error } = await get(`/v1/organizations/{slug}/project-claim/{token}`, {
     params: { path: { slug, token } },
     signal,
   })
